@@ -1,8 +1,10 @@
 package come.hasan.foraty.note.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -17,10 +19,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import come.hasan.foraty.note.R
+import come.hasan.foraty.note.viewmodel.MainViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+private const val TAG = "NoteList"
 @Composable
 fun MainNoteList() {
     val expanded = remember {
@@ -28,6 +34,9 @@ fun MainNoteList() {
     }
     val title = stringResource(id = R.string.title)
     var moreIcon = Icons.Default.Menu
+    val viewModel = remember {
+        MainViewModel()
+    }
     Scaffold(
         topBar = {
             MainTopAppBar(
@@ -44,12 +53,17 @@ fun MainNoteList() {
             }
         }
     ) {
-
+        NoteList(viewModel)
     }
 }
 
 @Composable
-fun NoteList(){
+fun NoteList(viewModel: MainViewModel){
+    LazyColumn() {
+        item{
+            Log.d(TAG, "NoteList: ${viewModel.note}")
+        }
+    }
 
 }
 
