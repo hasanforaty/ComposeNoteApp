@@ -7,7 +7,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-@AndroidEntryPoint
 class MainViewModel @Inject constructor():ViewModel(){
-    @Inject lateinit var note:Note
+
 }

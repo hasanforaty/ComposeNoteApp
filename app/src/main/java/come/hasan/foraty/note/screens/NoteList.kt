@@ -19,32 +19,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.navigation.compose.navigate
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import come.hasan.foraty.note.R
 import come.hasan.foraty.note.viewmodel.MainViewModel
-import dagger.hilt.android.AndroidEntryPoint
 
 private const val TAG = "NoteList"
 @Composable
-fun MainNoteList() {
+fun MainNoteList(viewModel: MainViewModel,onMenuItemSelected:(route:String)->Unit) {
     val expanded = remember {
         mutableStateOf(false)
     }
     val title = stringResource(id = R.string.title)
     var moreIcon = Icons.Default.Menu
-    val viewModel = remember {
-        MainViewModel()
-    }
     Scaffold(
         topBar = {
             MainTopAppBar(
-                title = title, menus = menus, expended = expanded.value
-            ) {
-                moreIcon = Icons.Default.Menu
-                expanded.value = false
-            }
+                title = title, menus = menus, expended = expanded.value,
+                onDismissRequest = {
+                    moreIcon = Icons.Default.Menu
+                    expanded.value = false
+                },
+                onMenuItemSelected = onMenuItemSelected
+            )
             IconButton(onClick = {
                 moreIcon = Icons.Default.MoreVert
                 expanded.value = true
@@ -61,7 +58,7 @@ fun MainNoteList() {
 fun NoteList(viewModel: MainViewModel){
     LazyColumn() {
         item{
-            Log.d(TAG, "NoteList: ${viewModel.note}")
+
         }
     }
 
@@ -72,18 +69,24 @@ fun MainTopAppBar(
     title: String,
     menus: List<Destinations>,
     expended: Boolean,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    onMenuItemSelected: (route: String) -> Unit
 ) {
     TopAppBar(
         title = { Text(text = title) },
         navigationIcon = {
-            Menus(menus = menus,expended = expended,onDismissRequest = onDismissRequest)
+            Menus(menus = menus, expended = expended, onDismissRequest = onDismissRequest,onMenuItemSelected = onMenuItemSelected)
         }
     )
 }
 
 @Composable
-fun Menus(menus: List<Destinations>, expended: Boolean, onDismissRequest: () -> Unit) {
+fun Menus(
+    menus: List<Destinations>,
+    expended: Boolean,
+    onDismissRequest: () -> Unit,
+    onMenuItemSelected: (route: String) -> Unit
+) {
     Card(
         shape = RoundedCornerShape(2.dp),
         modifier = Modifier.padding(2.dp)
@@ -93,7 +96,7 @@ fun Menus(menus: List<Destinations>, expended: Boolean, onDismissRequest: () -> 
             modifier = Modifier.size(125.dp)
         ) {
             for (menu in menus) {
-                MenuItem(menu = menu)
+                MenuItem(menu = menu,onMenuItemSelected = onMenuItemSelected)
             }
         }
     }
@@ -101,10 +104,9 @@ fun Menus(menus: List<Destinations>, expended: Boolean, onDismissRequest: () -> 
 }
 
 @Composable
-fun MenuItem(menu:Destinations){
-    val navController = localNavController.current
+fun MenuItem(menu:Destinations,onMenuItemSelected: (route: String) -> Unit){
     DropdownMenuItem(
-        onClick = { navController.navigate(menu.route) },
+        onClick = { onMenuItemSelected(menu.route) },
     ) {
         Card {
             Row {
@@ -135,14 +137,12 @@ val menus = listOf(
 @Preview(showBackground = true, backgroundColor = 0xffffff)
 @Composable
 fun PreviewMenu() {
-    val navController = rememberNavController()
-    CompositionLocalProvider(localNavController provides navController) {
-                MenuItem(menu = menus[0])
-    }
+                MenuItem(menu = menus[0],{})
 }
 
 @Preview(showBackground = true,backgroundColor = 0xffffff)
 @Composable
 fun PrevNoteList(){
-    MainNoteList()
+    val viewModel:MainViewModel =  viewModel()
+    MainNoteList(viewModel = viewModel,{})
 }
