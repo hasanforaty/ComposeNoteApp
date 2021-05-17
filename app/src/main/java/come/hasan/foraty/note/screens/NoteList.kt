@@ -24,7 +24,6 @@ import androidx.navigation.compose.rememberNavController
 import come.hasan.foraty.note.R
 import come.hasan.foraty.note.viewmodel.MainViewModel
 
-private const val TAG = "NoteList"
 @Composable
 fun MainNoteList(viewModel: MainViewModel,onMenuItemSelected:(route:String)->Unit) {
     val expanded = remember {

@@ -1,24 +1,21 @@
 package come.hasan.foraty.note.database
 
-import androidx.compose.ui.graphics.Color
 import androidx.room.TypeConverter
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import come.hasan.foraty.note.model.Tag
 import java.util.*
 
 class NoteTypeConvertor {
     @TypeConverter
-    fun fromTagList(tags: List<Tag>): List<String> {
-        return tags.map { tag ->
-            "${tag.name} ${tag.color}"
-        }
+    fun fromTagList(tags: List<Tag>): String {
+        return Gson().toJson(tags)
     }
+
     @TypeConverter
-    fun toTagList(stringList: List<String>):List<Tag>{
-        return stringList.map { string ->
-            val name = string.substringBefore("/")
-            val color = string.substringAfter("/").toInt()
-            return@map Tag(name,color = color)
-        }
+    fun toTagList(stringList: String):List<Tag>{
+        val listTags = object :TypeToken<List<Tag>>(){}.type
+        return Gson().fromJson(stringList,listTags)
     }
     @TypeConverter
     fun fromUUID(id:UUID):String= id.toString()
