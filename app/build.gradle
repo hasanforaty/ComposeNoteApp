@@ -47,6 +47,10 @@ android {
 
 dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$compose_version"
+    //live data observer as state
+    implementation"androidx.compose.runtime:runtime-livedata:$compose_version"
+    //Glide for Image Url
+    implementation "com.google.accompanist:accompanist-glide:0.9.1"
 
     //Hilt (Dependency Injection)
     implementation "com.google.dagger:hilt-android:$hilt_version"

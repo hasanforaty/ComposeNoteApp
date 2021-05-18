@@ -17,6 +17,9 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val noteRepository: RoomNoteRepository
 ):ViewModel() {
+    init {
+        getAllNotes()
+    }
     private val noteList:MutableLiveData<List<Note>> = MutableLiveData<List<Note>>()
     val  notes:LiveData<List<Note>> = Transformations.map(noteList){ notes ->
         notes
@@ -54,6 +57,20 @@ class MainViewModel @Inject constructor(
         CoroutineScope(IO).launch {
             noteRepository.deleteNote(note)
         }
+    }
+
+
+    companion object{
+        fun notesMock():List<Note> = listOf(
+            Note.mock(),
+            Note.mock(),
+            Note.mock(),
+            Note.mock(),
+            Note.mock(),
+            Note.mock(),
+            Note.mock(),
+            Note.mock(),
+        )
     }
 
 }

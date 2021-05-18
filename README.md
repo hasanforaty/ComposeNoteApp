@@ -22,6 +22,7 @@ A Note app using compose and Hilt base on MVVM architecture . save data in Local
 - Minimum SDK level 21
 - 100% [Kotlin](https://kotlinlang.org/) based + [Coroutines](https://github.com/Kotlin/kotlinx.coroutines) for asynchronous.
 - Hilt (alpha) for dependency injection.
+- Glide for getImage from Url.
 - JetPack
   - Compose - A modern toolkit for building native Android UI.
   - LiveData - notify domain layer data to views.
