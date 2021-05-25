@@ -8,15 +8,16 @@ import java.util.*
 data class Note(
     var title:String? = null,
     var content:String,
+    var date: Date = Date(),
     val tag:List<Tag> = mutableListOf(),
     var pictureURl:String? = null,
     @PrimaryKey val id:UUID = UUID.randomUUID()
 ){
     companion object{
         fun mock()=Note(
-            "Test Title ",
-            "Hello its content of first Test",
-            listOf(Tag("Sport")),
+            title ="Test Title ",
+            content = "Hello its content of first Test",
+            tag = listOf(Tag("Sport")),
         )
     }
 }

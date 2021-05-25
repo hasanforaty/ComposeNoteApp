@@ -21,4 +21,8 @@ class NoteTypeConvertor {
     fun fromUUID(id:UUID):String= id.toString()
     @TypeConverter
     fun toUUID(id:String):UUID = UUID.fromString(id)
+    @TypeConverter
+    fun fromDate(date:Date):Long = date.time
+    @TypeConverter
+    fun toDate(time:Long):Date = Date(time)
 }
