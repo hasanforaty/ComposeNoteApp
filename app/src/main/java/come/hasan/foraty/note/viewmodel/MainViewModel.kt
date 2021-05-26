@@ -9,7 +9,9 @@ import come.hasan.foraty.note.reposetory.RoomNoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
 
@@ -32,12 +34,17 @@ class MainViewModel @Inject constructor(
     fun getAllNotes(){
         CoroutineScope(IO).launch {
             val allNotes=noteRepository.getAllNotes()
-            noteList.value = allNotes
+            withContext(Main){
+                noteList.value = allNotes
+            }
         }
     }
     fun getNoteById(id:UUID){
         CoroutineScope(IO).launch {
-            note.value = noteRepository.getNoteById(id)
+            val receivedNote = noteRepository.getNoteById(id)
+            withContext(Main){
+                note.value = receivedNote
+            }
         }
     }
     fun queryContent(query:String){

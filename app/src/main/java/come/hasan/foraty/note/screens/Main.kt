@@ -1,5 +1,6 @@
 package come.hasan.foraty.note.screens
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -14,7 +15,7 @@ import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.compose.navigate
 import java.util.*
 
-
+private const val TAG = "Main"
 @Composable
 fun NoteMain() {
     val navController = rememberNavController()
@@ -34,6 +35,7 @@ fun NoteMain() {
         }
         composable(Destinations.NewNote.route) { navBackStack ->
             val viewModel = hiltNavGraphViewModel<MainViewModel>(backStackEntry = navBackStack)
+            Log.d(TAG, "NoteMain: Reach Route without argument")
             MainNote(viewModel = viewModel,isNewNote = true)
         }
         composable(Destinations.Note.routeWithArgument0) { navBackStack ->

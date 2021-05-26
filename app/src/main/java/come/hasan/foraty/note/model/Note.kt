@@ -1,13 +1,14 @@
 package come.hasan.foraty.note.model
 
-import android.graphics.Color
+import androidx.compose.ui.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.*
+
 @Entity
 data class Note(
-    var title:String? = null,
-    var content:String,
+    var title:String = "",
+    var content:String = "",
     var date: Date = Date(),
     val tag:List<Tag> = mutableListOf(),
     var pictureURl:String? = null,
@@ -24,5 +25,5 @@ data class Note(
 
 data class Tag(
     var name:String,
-    var color: Int = Color.WHITE
+    var color: ULong = Color.White.value
 )
