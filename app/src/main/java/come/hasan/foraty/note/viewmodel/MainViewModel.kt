@@ -1,5 +1,6 @@
 package come.hasan.foraty.note.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -15,12 +16,14 @@ import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
 
+private const val TAG = "MainViewModel"
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val noteRepository: RoomNoteRepository
 ):ViewModel() {
     init {
         getAllNotes()
+        Log.d(TAG, "init: get all note")
     }
     private val noteList:MutableLiveData<List<Note>> = MutableLiveData<List<Note>>()
     val  notes:LiveData<List<Note>> = Transformations.map(noteList){ notes ->
