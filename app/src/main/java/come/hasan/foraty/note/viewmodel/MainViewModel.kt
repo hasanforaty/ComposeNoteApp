@@ -21,10 +21,7 @@ private const val TAG = "MainViewModel"
 class MainViewModel @Inject constructor(
     private val noteRepository: RoomNoteRepository
 ):ViewModel() {
-    init {
-        getAllNotes()
-        Log.d(TAG, "init: get all note")
-    }
+
     private val noteList:MutableLiveData<List<Note>> = MutableLiveData<List<Note>>()
     val  notes:LiveData<List<Note>> = Transformations.map(noteList){ notes ->
         notes
@@ -34,9 +31,19 @@ class MainViewModel @Inject constructor(
         note->
         note
     }
+
+    val currentNoteTitle:MutableLiveData<String> = Transformations.map(note){
+        it.title
+    } as MutableLiveData<String>
+    fun changeTitle(titel:String){
+        currentNoteTitle.value = titel
+    }
+
+
     fun getAllNotes(){
         CoroutineScope(IO).launch {
             val allNotes=noteRepository.getAllNotes()
+            Log.d(TAG, "getAllNotes: notes : $allNotes")
             withContext(Main){
                 noteList.value = allNotes
             }

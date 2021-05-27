@@ -10,7 +10,7 @@ data class Note(
     var title:String = "",
     var content:String = "",
     var date: Date = Date(),
-    val tag:List<Tag> = mutableListOf(),
+    var tag:List<Tag> = mutableListOf(),
     var pictureURl:String? = null,
     @PrimaryKey val id:UUID = UUID.randomUUID()
 ){

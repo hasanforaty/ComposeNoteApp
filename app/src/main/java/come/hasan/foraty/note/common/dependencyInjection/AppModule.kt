@@ -18,6 +18,7 @@ object AppModule {
         @Provides
         fun context(application: Application):Context = application.applicationContext
         @Provides
+        @Singleton
         fun database(context: Context):NotesDatabase =
             Room.databaseBuilder(
                 context.applicationContext,

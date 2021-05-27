@@ -1,6 +1,9 @@
 package come.hasan.foraty.note.screens
 
-import androidx.compose.foundation.*
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -8,10 +11,14 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -21,35 +28,42 @@ import androidx.compose.ui.unit.dp
 import come.hasan.foraty.note.model.Note
 import come.hasan.foraty.note.model.Tag
 import come.hasan.foraty.note.viewmodel.MainViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+
+private const val TAG = "Note"
 
 @Composable
 fun MainNote(
     viewModel: MainViewModel,
     isNewNote: Boolean = false
 ) {
-    val note: Note = remember {
-        if (isNewNote) {
-            Note()
-        } else {
-            viewModel.currentNote.value!!
-        }
-    }
+    val note = viewModel.currentNote.observeAsState(initial = Note())
     val content = remember {
-        mutableStateOf(note.content)
+        mutableStateOf(note.value.content)
     }
-    val title = remember {
-        mutableStateOf(note.title)
-    }
-    val date = note.date
+    val title = viewModel.currentNoteTitle.observeAsState(initial = "")
+    val date = note.value.date
     val tags = remember {
-        mutableStateOf(note.tag)
+        mutableStateOf(note.value.tag)
     }
 
+    DisposableEffect(key1 = note) {
+        onDispose {
+            Log.d(TAG, "MainNote: reach add note")
+            val currentNote = note.value
+            currentNote.title = title.value
+            currentNote.content = content.value
+            viewModel.addNote(note =currentNote)
+        }
+    }
     NoteViewContent(
         title = title.value,
-        onTitleChange = { title.value = it },
+        onTitleChange = { viewModel.changeTitle(it) },
         tags = tags.value
     )
+
 }
 
 @Composable
@@ -113,8 +127,14 @@ fun TagList(tags: List<Tag>) {
             items(items = tags) { tag ->
                 TagView(tag = tag)
             }
+            item {
+                Icon(
+                    imageVector = Icons.Default.AddCircle,
+                    contentDescription = "",
+                    modifier = Modifier.wrapContentSize()
+                )
+            }
         }
-        Icon(imageVector = Icons.Default.Add, contentDescription = "")
     }
 }
 

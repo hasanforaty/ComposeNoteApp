@@ -44,8 +44,10 @@ fun MainNoteList(
     }
     val title = stringResource(id = R.string.title)
     var moreIcon = Icons.Default.Menu
-
     val notes = viewModel.notes.observeAsState(initial = emptyList())
+    LaunchedEffect(key1 = viewModel){
+        viewModel.getAllNotes()
+    }
 
     Scaffold(
         topBar = {
@@ -95,7 +97,7 @@ fun NoteViewList(note: Note, onNoteSelected: ((noteId: UUID) -> Unit)?) {
     ) {
         Column {
             Text(
-                text = note.title ?: "",
+                text = note.title,
                 modifier = Modifier,
                 fontWeight = FontWeight.Bold
             )
