@@ -69,6 +69,13 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+    fun getNote(receivedNote:Note){
+        CoroutineScope(IO).launch {
+            withContext(Main){
+                note.value = receivedNote
+            }
+        }
+    }
     fun queryContent(query:String){
         CoroutineScope(IO).launch {
             val wantedNotes = noteRepository.searchNoteContent(query)

@@ -19,6 +19,9 @@ private const val TAG = "Main"
 @Composable
 fun NoteMain() {
     val navController = rememberNavController()
+    val goingBackfromNote:()->Unit = {
+        navController.navigate(Destinations.Home.route)
+    }
     NavHost(
         navController = navController,
         startDestination = Destinations.Home.route
@@ -36,13 +39,13 @@ fun NoteMain() {
         composable(Destinations.NewNote.route) { navBackStack ->
             val viewModel = hiltNavGraphViewModel<MainViewModel>(backStackEntry = navBackStack)
             Log.d(TAG, "NoteMain: Reach Route without argument")
-            MainNote(viewModel = viewModel,isNewNote = true)
+            MainNote(viewModel = viewModel,isNewNote = true,navigateBack = goingBackfromNote)
         }
         composable(Destinations.Note.routeWithArgument0) { navBackStack ->
             val viewModel = hiltNavGraphViewModel<MainViewModel>(backStackEntry = navBackStack)
             val id:UUID = UUID.fromString(navBackStack.arguments?.get(Destinations.Note.argument0) as String?)
             viewModel.getNoteById(id)
-            MainNote(viewModel = viewModel)
+            MainNote(viewModel = viewModel,navigateBack = goingBackfromNote)
         }
     }
 }

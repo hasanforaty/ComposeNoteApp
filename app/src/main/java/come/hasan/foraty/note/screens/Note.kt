@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
@@ -34,12 +35,15 @@ private const val TAG = "Note"
 @Composable
 fun MainNote(
     viewModel: MainViewModel,
-    isNewNote: Boolean = false
+    isNewNote: Boolean = false,
+    navigateBack:()->Unit
 ) {
+
     val note = viewModel.currentNote.observeAsState(initial = Note())
-    val content = remember {
-        mutableStateOf(note.value.content)
+    if (isNewNote){
+        viewModel.getNote(note.value)
     }
+    val content = viewModel.currentNoteContent.observeAsState(initial = "")
     val title = viewModel.currentNoteTitle.observeAsState(initial = "")
     val date = note.value.date
     val tags = remember {
@@ -50,19 +54,32 @@ fun MainNote(
         onDispose {
             Log.d(TAG, "MainNote: reach add note")
             val currentNote = note.value
-            currentNote.title = title.value
-            currentNote.content = content.value
             viewModel.addNote(note =currentNote)
         }
     }
-    NoteViewContent(
-        title = title.value,
-        onTitleChange = { viewModel.changeTitle(it) },
-        tags = tags.value
-    )
+    Scaffold(
+        topBar = { NoteTopAppBar(navigateBack = navigateBack) }
+    ) {
+        NoteViewContent(
+            title = title.value,
+            onTitleChange = { viewModel.changeTitle(it) },
+            tags = tags.value
+        )
+    }
 
 }
-
+@Composable
+fun NoteTopAppBar(navigateBack: () -> Unit){
+    TopAppBar(title = {},
+        navigationIcon = {
+        Icon(imageVector = Icons.Default.ArrowBack,
+            contentDescription = "",
+            modifier = Modifier.clickable {
+                navigateBack()
+            }
+        )
+    })
+}
 @Composable
 fun NoteViewContent(title: String, onTitleChange: (String) -> Unit, tags: List<Tag>) {
     Column {
@@ -133,6 +150,12 @@ fun TagList(tags: List<Tag>) {
             }
         }
     }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xffffff)
+@Composable
+fun PrevNoteTopAppBar(){
+    NoteTopAppBar({})
 }
 
 @Preview(showBackground = true, backgroundColor = 0xffffff)
