@@ -33,10 +33,19 @@ class MainViewModel @Inject constructor(
     }
 
     val currentNoteTitle:MutableLiveData<String> = Transformations.map(note){
+        Log.d(TAG, "current note title : $it")
         it.title
     } as MutableLiveData<String>
-    fun changeTitle(titel:String){
-        currentNoteTitle.value = titel
+    fun changeTitle(title:String){
+        currentNote.value?.title = title
+        currentNoteTitle.value = title
+    }
+    val currentNoteContent:MutableLiveData<String> = Transformations.map(note){
+        it.content
+    } as MutableLiveData<String>
+    fun changeContent(content:String){
+        currentNote.value?.content  = content
+        currentNoteContent.value = content
     }
 
 
@@ -44,6 +53,9 @@ class MainViewModel @Inject constructor(
         CoroutineScope(IO).launch {
             val allNotes=noteRepository.getAllNotes()
             Log.d(TAG, "getAllNotes: notes : $allNotes")
+            allNotes.sortedBy { note ->
+                note.date
+            }
             withContext(Main){
                 noteList.value = allNotes
             }

@@ -1,11 +1,9 @@
 package come.hasan.foraty.note.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CutCornerShape
@@ -21,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -73,13 +72,22 @@ fun MainNoteList(
 
 @Composable
 fun NoteList(notes: List<Note>, onNoteSelected: ((noteId: UUID) -> Unit)?) {
-
-    LazyColumn {
-        items(items = notes) { note ->
-            NoteViewList(note = note, onNoteSelected = onNoteSelected)
+    Surface(
+        modifier = Modifier
+            .fillMaxSize(),
+        color = MaterialTheme.colors.background
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .padding(15.dp)
+                .fillMaxWidth()
+                .background(Color.Gray, shape = RoundedCornerShape(10.dp))
+        ) {
+            items(items = notes) { note ->
+                NoteViewList(note = note, onNoteSelected = onNoteSelected)
+            }
         }
     }
-
 }
 
 @Composable
@@ -91,9 +99,12 @@ fun NoteViewList(note: Note, onNoteSelected: ((noteId: UUID) -> Unit)?) {
                     onNoteSelected(note.id)
                 }
             }
-            .shadow(5.dp),
-        shape = CutCornerShape(topEnd = 5.dp),
-        backgroundColor = PapayaWhip
+            .shadow(5.dp)
+            .padding(5.dp)
+            .fillMaxWidth()
+        ,
+        backgroundColor = PapayaWhip,
+        shape = RoundedCornerShape(2.dp)
     ) {
         Column {
             Text(

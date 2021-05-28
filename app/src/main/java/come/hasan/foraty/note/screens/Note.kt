@@ -28,9 +28,6 @@ import androidx.compose.ui.unit.dp
 import come.hasan.foraty.note.model.Note
 import come.hasan.foraty.note.model.Tag
 import come.hasan.foraty.note.viewmodel.MainViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 private const val TAG = "Note"
 
