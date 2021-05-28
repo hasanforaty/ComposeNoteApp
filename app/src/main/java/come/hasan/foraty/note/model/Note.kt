@@ -16,7 +16,7 @@ data class Note(
 ){
     companion object{
         fun mock()=Note(
-            title ="Test Title ",
+            title ="Long Test Title Test Title Test Title Test Title Test Title Test Title Test Title Test Title Test Title Test Title ",
             content = "Hello its content of first Test",
             tag = listOf(Tag("Sport")),
         )
