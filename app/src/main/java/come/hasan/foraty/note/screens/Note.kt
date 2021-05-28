@@ -45,7 +45,6 @@ fun MainNote(
     }
     val content = viewModel.currentNoteContent.observeAsState(initial = "")
     val title = viewModel.currentNoteTitle.observeAsState(initial = "")
-    val date = note.value.date
     val tags = remember {
         mutableStateOf(note.value.tag)
     }
@@ -63,7 +62,9 @@ fun MainNote(
         NoteViewContent(
             title = title.value,
             onTitleChange = { viewModel.changeTitle(it) },
-            tags = tags.value
+            tags = tags.value,
+            content = content.value,
+            onContentChange = {viewModel.changeContent(it)}
         )
     }
 
@@ -81,14 +82,35 @@ fun NoteTopAppBar(navigateBack: () -> Unit){
     })
 }
 @Composable
-fun NoteViewContent(title: String, onTitleChange: (String) -> Unit, tags: List<Tag>) {
+fun NoteViewContent(
+    title: String,
+    onTitleChange: (String) -> Unit,
+    tags: List<Tag>,
+    content: String = "",
+    onContentChange: (String) -> Unit
+) {
     Column {
         NoteTitle(title = title, onTitleChange = onTitleChange)
         TagList(tags = tags)
-
+        NoteContent(content = content, onContentChanged = onContentChange)
     }
 }
-
+@Composable
+fun NoteContent(
+    content: String,
+    onContentChanged: (String) -> Unit
+){
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .shadow(10.dp, shape = RoundedCornerShape(7.dp))
+            .padding(5.dp)
+        ,
+        shape = RoundedCornerShape(7.dp)
+    ) {
+        OutlinedTextField(value = content,onValueChange = {onContentChanged(it)})
+    }
+}
 @Composable
 fun NoteTitle(title: String, onTitleChange: (String) -> Unit) {
     OutlinedTextField(
@@ -155,7 +177,7 @@ fun TagList(tags: List<Tag>) {
 @Preview(showBackground = true, backgroundColor = 0xffffff)
 @Composable
 fun PrevNoteTopAppBar(){
-    NoteTopAppBar({})
+    NoteTopAppBar {}
 }
 
 @Preview(showBackground = true, backgroundColor = 0xffffff)
@@ -185,7 +207,9 @@ fun PrevNoteView() {
             onTitleChange = {
                 note.title = it
             },
-            tags = tags
+            tags = tags,
+            content = note.content,
+            onContentChange = {note.content = it}
         )
     }
 }
