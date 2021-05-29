@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -42,10 +41,10 @@ fun MainNoteList(
     val title = stringResource(id = R.string.title)
     var moreIcon = Icons.Default.Menu
     val notes = viewModel.notes.observeAsState(initial = emptyList())
-    LaunchedEffect(key1 = viewModel){
+    LaunchedEffect(key1 = viewModel) {
         viewModel.getAllNotes()
     }
-    val noteMode:MutableState<NoteMode> = remember {
+    val noteMode: MutableState<NoteMode> = remember {
         mutableStateOf(NoteMode.SelectingMode)
     }
 
@@ -56,11 +55,6 @@ fun MainNoteList(
                 onDismissRequest = {
                     moreIcon = Icons.Default.Menu
                     expanded.value = false
-                    if (noteMode.value == NoteMode.SelectingMode){
-                        noteMode.value = NoteMode.DefaultMode
-                    }else{
-                        noteMode.value = NoteMode.SelectingMode
-                    }
                 },
                 onMenuItemSelected = onMenuItemSelected
             )
@@ -70,15 +64,26 @@ fun MainNoteList(
             }) {
                 Icon(moreIcon, contentDescription = "more")
             }
+        },
+        bottomBar = {
+            MainBottomAppBar(appMode = noteMode.value)
         }
     ) {
-        NoteList(notes.value, onNoteSelected = onNoteSelected,mode = noteMode.value)
+        NoteList(notes.value, onNoteSelected = onNoteSelected, mode = noteMode.value,
+            onCheckedChange ={ isSelected: Boolean, note: Note ->
+            viewModel.onNoteCheckedChange(note,isSelected = isSelected)
+        })
     }
 }
 
 @ExperimentalAnimationApi
 @Composable
-fun NoteList(notes: List<Note>, onNoteSelected: ((noteId: UUID) -> Unit)?, mode: NoteMode) {
+fun NoteList(
+    notes: List<Note>,
+    onNoteSelected: ((noteId: UUID) -> Unit)?,
+    mode: NoteMode,
+    onCheckedChange: ((Boolean, Note) -> Unit)?
+) {
     Surface(
         modifier = Modifier
             .fillMaxSize(),
@@ -91,7 +96,9 @@ fun NoteList(notes: List<Note>, onNoteSelected: ((noteId: UUID) -> Unit)?, mode:
                 .background(Color.Gray, shape = RoundedCornerShape(10.dp))
         ) {
             items(items = notes) { note ->
-                NoteViewList(note = note, onNoteSelected = onNoteSelected,mode = mode)
+                NoteViewList(
+                    note = note, onNoteSelected = onNoteSelected, mode = mode,
+                    onCheckedChange = onCheckedChange)
             }
         }
     }
@@ -99,7 +106,10 @@ fun NoteList(notes: List<Note>, onNoteSelected: ((noteId: UUID) -> Unit)?, mode:
 
 @ExperimentalAnimationApi
 @Composable
-fun NoteViewList(note: Note, onNoteSelected: ((noteId: UUID) -> Unit)?,mode:NoteMode) {
+fun NoteViewList(
+    note: Note, onNoteSelected: ((noteId: UUID) -> Unit)?, mode: NoteMode,
+    onCheckedChange: ((Boolean,Note) -> Unit)?
+) {
     val checked = remember {
         mutableStateOf(false)
     }
@@ -112,13 +122,12 @@ fun NoteViewList(note: Note, onNoteSelected: ((noteId: UUID) -> Unit)?,mode:Note
             }
             .shadow(5.dp)
             .padding(5.dp)
-            .fillMaxWidth()
-        ,
+            .fillMaxWidth(),
         backgroundColor = PapayaWhip,
         shape = RoundedCornerShape(2.dp)
     ) {
         Column {
-            Row{
+            Row {
                 Text(
                     text = note.title,
                     modifier = Modifier.fillMaxWidth(0.90f),
@@ -128,10 +137,12 @@ fun NoteViewList(note: Note, onNoteSelected: ((noteId: UUID) -> Unit)?,mode:Note
                 AnimatedVisibility(visible = mode == NoteMode.SelectingMode) {
                     Checkbox(checked = checked.value,
                         modifier = Modifier
-                            .border(BorderStroke(1.dp,color = PapayaWhip))
-                        ,
+                            .border(BorderStroke(1.dp, color = PapayaWhip)),
                         onCheckedChange = {
                             checked.value = !checked.value
+                            if (onCheckedChange != null) {
+                                onCheckedChange(it,note)
+                            }
                         })
                 }
             }
@@ -171,6 +182,19 @@ fun MainTopAppBar(
             )
         }
     )
+}
+
+@ExperimentalAnimationApi
+@Composable
+fun MainBottomAppBar(
+    appMode: NoteMode
+) {
+    AnimatedVisibility(visible = appMode == NoteMode.SelectingMode) {
+        BottomAppBar {
+
+        }
+    }
+
 }
 
 @Composable
@@ -237,16 +261,21 @@ fun PreviewMenu() {
 @Preview(showBackground = true, backgroundColor = 0xffffff)
 @Composable
 fun PrevNoteList() {
-    NoteList(notes = MainViewModel.notesMock(), onNoteSelected = null,NoteMode.SelectingMode)
+    NoteList(
+        notes = MainViewModel.notesMock(),
+        onNoteSelected = null,
+        mode = NoteMode.SelectingMode,
+    onCheckedChange =null)
 }
 
 @ExperimentalAnimationApi
 @Preview(showBackground = true, backgroundColor = 0xffffff)
 @Composable
 fun PreNoteViewList() {
-    NoteViewList(note = Note.mock(), null,NoteMode.SelectingMode)
+    NoteViewList(note = Note.mock(), null, NoteMode.SelectingMode,null)
 }
-sealed class NoteMode{
-    object SelectingMode: NoteMode()
-    object DefaultMode:NoteMode()
+
+sealed class NoteMode {
+    object SelectingMode : NoteMode()
+    object DefaultMode : NoteMode()
 }

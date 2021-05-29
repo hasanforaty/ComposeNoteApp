@@ -95,6 +95,15 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    private val noteSelected:MutableSet<Note> = mutableSetOf()
+    fun onNoteCheckedChange(note: Note, isSelected:Boolean){
+        if (isSelected){
+            noteSelected.add(note)
+        }else{
+            noteSelected.remove(note)
+        }
+    }
+
 
     companion object{
         fun notesMock():List<Note> = listOf(
