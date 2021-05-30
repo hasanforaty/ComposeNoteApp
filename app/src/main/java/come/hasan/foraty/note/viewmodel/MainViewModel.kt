@@ -24,7 +24,7 @@ class MainViewModel @Inject constructor(
 
     private val noteList:MutableLiveData<MutableList<Note>> = MutableLiveData<MutableList<Note>>()
     val  notes:LiveData<List<Note>> = Transformations.map(noteList){ notes ->
-        Log.d(TAG, "notes LiveData: uptated $notes")
+        Log.d(TAG, "notes LiveData: updated $notes")
         notes
     }
     private val note:MutableLiveData<Note> = MutableLiveData<Note>()
@@ -115,7 +115,11 @@ class MainViewModel @Inject constructor(
             listOfSelected.forEach { note ->
                 deleteNote(note)
             }
-
+            val currentNote = noteList.value
+            currentNote?.removeAll(listOfSelected)
+            withContext(Main){
+                noteList.value = currentNote
+            }
         }
     }
 

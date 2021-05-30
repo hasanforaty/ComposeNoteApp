@@ -79,6 +79,7 @@ fun MainNoteList(
                 viewModel.onCancelSelected()
                 noteMode.value = NoteMode.DefaultMode
             }, onDeleteClicked = {
+                noteMode.value = NoteMode.DefaultMode
                 viewModel.deleteSelected()
             }, numberOfSelected = numberOfItemSelected.value
             )
