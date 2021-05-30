@@ -2,6 +2,7 @@ package come.hasan.foraty.note.screens
 
 import android.util.Log
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
@@ -16,10 +17,11 @@ import androidx.navigation.compose.navigate
 import java.util.*
 
 private const val TAG = "Main"
+@ExperimentalAnimationApi
 @Composable
 fun NoteMain() {
     val navController = rememberNavController()
-    val goingBackfromNote:()->Unit = {
+    val goingBackFromNote:()->Unit = {
         navController.navigate(Destinations.Home.route)
     }
     NavHost(
@@ -39,13 +41,13 @@ fun NoteMain() {
         composable(Destinations.NewNote.route) { navBackStack ->
             val viewModel = hiltNavGraphViewModel<MainViewModel>(backStackEntry = navBackStack)
             Log.d(TAG, "NoteMain: Reach Route without argument")
-            MainNote(viewModel = viewModel,isNewNote = true,navigateBack = goingBackfromNote)
+            MainNote(viewModel = viewModel,isNewNote = true,navigateBack = goingBackFromNote)
         }
         composable(Destinations.Note.routeWithArgument0) { navBackStack ->
             val viewModel = hiltNavGraphViewModel<MainViewModel>(backStackEntry = navBackStack)
             val id:UUID = UUID.fromString(navBackStack.arguments?.get(Destinations.Note.argument0) as String?)
             viewModel.getNoteById(id)
-            MainNote(viewModel = viewModel,navigateBack = goingBackfromNote)
+            MainNote(viewModel = viewModel,navigateBack = goingBackFromNote)
         }
     }
 }

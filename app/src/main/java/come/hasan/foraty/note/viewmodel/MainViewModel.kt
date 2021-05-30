@@ -22,8 +22,9 @@ class MainViewModel @Inject constructor(
     private val noteRepository: RoomNoteRepository
 ):ViewModel() {
 
-    private val noteList:MutableLiveData<List<Note>> = MutableLiveData<List<Note>>()
+    private val noteList:MutableLiveData<MutableList<Note>> = MutableLiveData<MutableList<Note>>()
     val  notes:LiveData<List<Note>> = Transformations.map(noteList){ notes ->
+        Log.d(TAG, "notes LiveData: uptated $notes")
         notes
     }
     private val note:MutableLiveData<Note> = MutableLiveData<Note>()
@@ -57,7 +58,7 @@ class MainViewModel @Inject constructor(
                 note.date
             }
             withContext(Main){
-                noteList.value = allNotes
+                noteList.value = allNotes.toMutableList()
             }
         }
     }
@@ -79,7 +80,7 @@ class MainViewModel @Inject constructor(
     fun queryContent(query:String){
         CoroutineScope(IO).launch {
             val wantedNotes = noteRepository.searchNoteContent(query)
-            noteList.value = wantedNotes
+            noteList.value = wantedNotes.toMutableList()
         }
     }
 
@@ -89,7 +90,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun deleteNote(note: Note){
+    private fun deleteNote(note: Note){
         CoroutineScope(IO).launch {
             noteRepository.deleteNote(note)
         }
@@ -101,6 +102,20 @@ class MainViewModel @Inject constructor(
             noteSelected.add(note)
         }else{
             noteSelected.remove(note)
+        }
+    }
+    fun onCancelSelected(){
+        noteSelected.clear()
+    }
+
+    fun deleteSelected(){
+        CoroutineScope(IO).launch {
+            val listOfSelected = noteSelected.toList()
+            noteSelected.clear()
+            listOfSelected.forEach { note ->
+                deleteNote(note)
+            }
+
         }
     }
 
