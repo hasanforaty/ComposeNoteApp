@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import come.hasan.foraty.note.model.Note
+import come.hasan.foraty.note.model.Tag
 import come.hasan.foraty.note.reposetory.RoomNoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -47,6 +48,30 @@ class MainViewModel @Inject constructor(
     fun changeContent(content:String){
         currentNote.value?.content  = content
         currentNoteContent.value = content
+    }
+    val currentTags:MutableLiveData<List<Tag>> = Transformations.map(note){
+        it.tag
+    }as MutableLiveData<List<Tag>>
+    fun changeTag(tag: Tag){
+        val tags = currentTags.value
+        if (tags?.contains(tag) == true){
+            return
+        }
+        val currentList = mutableListOf<Tag>()
+        if (tags != null) {
+            currentList.addAll(tags)
+        }
+        currentList.add(tag)
+        currentTags.value = currentList
+    }
+    fun deleteTag(tag: Tag){
+        val tags = currentTags.value
+        if (tags?.contains(tag)==true){
+            val currentList = mutableListOf<Tag>()
+            currentList.addAll(tags)
+            currentList.remove(tag)
+            currentTags.value = currentList
+        }
     }
 
 

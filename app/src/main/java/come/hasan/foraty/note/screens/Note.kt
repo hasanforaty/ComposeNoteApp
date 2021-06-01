@@ -15,17 +15,15 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import come.hasan.foraty.note.model.Note
 import come.hasan.foraty.note.model.Tag
 import come.hasan.foraty.note.viewmodel.MainViewModel
@@ -45,8 +43,16 @@ fun MainNote(
     }
     val content = viewModel.currentNoteContent.observeAsState(initial = "")
     val title = viewModel.currentNoteTitle.observeAsState(initial = "")
-    val tags = remember {
-        mutableStateOf(note.value.tag)
+    val tags = viewModel.currentTags.observeAsState(initial = note.value.tag)
+    val addingTagWindow = remember {
+        mutableStateOf(false)
+    }
+    val tagSelected:MutableState<Tag?> = remember {
+        mutableStateOf(null)
+    }
+    val onTagClicked:(Tag?)->Unit = {
+        addingTagWindow.value = !addingTagWindow.value
+        tagSelected.value = it
     }
 
     DisposableEffect(key1 = note) {
@@ -59,12 +65,29 @@ fun MainNote(
     Scaffold(
         topBar = { NoteTopAppBar(navigateBack = navigateBack) }
     ) {
+        if (addingTagWindow.value){
+            AddingTagView(
+                tag = tagSelected.value,
+                onTagDismissRequest = {addingTagWindow.value = false},
+                onDeleteTag = {
+                    if (it != null) {
+                        viewModel.deleteTag(it)
+                    }
+                },
+                onTagChanged = {
+                    it?.let {
+                        viewModel.changeTag(it)
+                    }
+                }
+            )
+        }
         NoteViewContent(
             title = title.value,
             onTitleChange = { viewModel.changeTitle(it) },
             tags = tags.value,
             content = content.value,
-            onContentChange = {viewModel.changeContent(it)}
+            onContentChange = {viewModel.changeContent(it)},
+            onTagClicked = onTagClicked
         )
     }
 
@@ -87,11 +110,12 @@ fun NoteViewContent(
     onTitleChange: (String) -> Unit,
     tags: List<Tag>,
     content: String = "",
-    onContentChange: (String) -> Unit
+    onContentChange: (String) -> Unit,
+    onTagClicked: (Tag?) -> Unit
 ) {
     Column {
         NoteTitle(title = title, onTitleChange = onTitleChange)
-        TagList(tags = tags)
+        TagList(tags = tags,onTagClicked = onTagClicked)
         NoteContent(content = content, onContentChanged = onContentChange)
     }
 }
@@ -125,7 +149,7 @@ fun NoteTitle(title: String, onTitleChange: (String) -> Unit) {
 }
 
 @Composable
-fun TagView(tag: Tag) {
+fun TagView(tag: Tag,onTagClicked:(Tag)->Unit) {
     val fillIcon = remember {
         mutableStateOf(false)
     }
@@ -142,6 +166,7 @@ fun TagView(tag: Tag) {
             .shadow(50.dp)
             .clickable {
                 fillIcon.value = !fillIcon.value
+                onTagClicked(tag)
             },
         backgroundColor = Color(tag.color)
     ) {
@@ -157,21 +182,56 @@ fun TagView(tag: Tag) {
 }
 
 @Composable
-fun TagList(tags: List<Tag>) {
+fun TagList(tags: List<Tag>, onTagClicked: (Tag?) -> Unit) {
     Column {
         LazyRow(state = rememberLazyListState()) {
             items(items = tags) { tag ->
-                TagView(tag = tag)
+                TagView(tag = tag,onTagClicked = onTagClicked)
             }
             item {
                 Icon(
                     imageVector = Icons.Default.AddCircle,
                     contentDescription = "",
-                    modifier = Modifier.wrapContentSize()
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clickable {
+                            onTagClicked(null)
+                        }
                 )
             }
         }
     }
+}
+
+@Composable
+fun AddingTagView(tag:Tag?,onTagDismissRequest:()->Unit = {},onDeleteTag:(Tag?)->Unit ={},onTagChanged:(Tag?)->Unit = {}){
+    val tagName = remember {
+        mutableStateOf(tag?.name)
+    }
+    Dialog(onDismissRequest = { onTagDismissRequest() }) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            OutlinedTextField(value = "${tagName.value}",onValueChange = {
+                tagName.value = it
+            },placeholder = {
+                Text(text = "tag name")
+            })
+        }
+    }
+    DisposableEffect(key1 = tagName) {
+        onDispose {
+            onDeleteTag(tag)
+            onTagChanged(tag)
+        }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xffffff)
+@Composable
+fun PrevAddingTagView(){
+    val tag = Tag("Sport", Color.LightGray.value)
+    AddingTagView(tag)
 }
 
 @Preview(showBackground = true, backgroundColor = 0xffffff)
@@ -209,7 +269,7 @@ fun PrevNoteView() {
             },
             tags = tags,
             content = note.content,
-            onContentChange = {note.content = it}
+            onContentChange = {note.content = it},onTagClicked = {}
         )
     }
 }
@@ -234,6 +294,6 @@ fun PrevTagList() {
         tag,
         tag,
     )
-    TagList(tags = tags)
+    TagList(tags = tags,onTagClicked = {})
 }
 
