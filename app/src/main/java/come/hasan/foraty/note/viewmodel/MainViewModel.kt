@@ -115,7 +115,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun deleteNote(note: Note){
+    fun deleteNote(note: Note){
         CoroutineScope(IO).launch {
             noteRepository.deleteNote(note)
         }
