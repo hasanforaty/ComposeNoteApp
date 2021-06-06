@@ -90,6 +90,11 @@ fun MainNoteList(
                 viewModel.deleteSelected()
             }, numberOfSelected = numberOfItemSelected.value
             )
+        },
+        drawerContent = {
+            for (menu in menus) {
+                MenuItem(menu = menu, onMenuItemSelected = onMenuItemSelected)
+            }
         }
     ) {
         NoteList(
